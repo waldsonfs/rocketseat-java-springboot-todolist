@@ -1,23 +1,17 @@
-FROM ubuntu:latest AS build
+FROM eclipse-temurin:21-jdk AS build
 
 WORKDIR /app
-
-RUN apt-get update && \
-    apt-get install -y openjdk-17-jdk maven
 
 COPY . .
 
-RUN mvn clean package -DskipTests
+RUN chmod +x mvnw
+RUN ./mvnw clean package -DskipTests
 
-FROM ubuntu:latest
+FROM eclipse-temurin:21-jre
 
 WORKDIR /app
 
-RUN apt-get update && \
-    apt-get install -y openjdk-17-jre && \
-    apt-get clean
-
-COPY --from=build /app/target/todolist-0.0.1-SNAPSHOT.jar app.jar
+COPY --from=build /app/target/*.jar app.jar
 
 EXPOSE 8080
 
